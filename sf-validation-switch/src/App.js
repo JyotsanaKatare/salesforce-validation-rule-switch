@@ -47,7 +47,7 @@ function App() {
   const getValidationRules = async () => {
     if (!accessToken || !instanceUrl) return alert("Access Token or Instance URL missing!");
     try {
-      const res = await axios.post("http://localhost:5000/api/validation-rules", {
+      const res = await axios.post("https://salesforce-validation-rule-switch-backend.onrender.com/api/validation-rules", {
         accessToken,
         instanceUrl,
       });

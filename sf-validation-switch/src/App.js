@@ -13,12 +13,14 @@ function App() {
       const params = new URLSearchParams(hash.replace("#", ""));
       const token = params.get("access_token");
       const instance = params.get("instance_url");
+
       if (token && instance) {
         setAccessToken(token);
         setInstanceUrl(instance);
         localStorage.setItem("sf_token", token);
         localStorage.setItem("sf_instance_url", instance);
       }
+
       window.history.replaceState(null, null, window.location.pathname);
     } else {
       const storedToken = localStorage.getItem("sf_token");
@@ -37,23 +39,34 @@ function App() {
   };
 
   const loginWithSalesforce = () => {
-    const clientId =  process.env.REACT_APP_SF_CLIENT_ID;
-    const redirectUri = "http://localhost:3000";
+    const clientId = process.env.REACT_APP_SF_CLIENT_ID;
+
+    // 🔹 LIVE + LOCAL dono ke liye safe
+    const redirectUri = window.location.origin;
+
     window.location.href =
       `https://login.salesforce.com/services/oauth2/authorize?response_type=token` +
       `&client_id=${clientId}&redirect_uri=${redirectUri}`;
   };
 
   const getValidationRules = async () => {
-    if (!accessToken || !instanceUrl) return alert("Access Token or Instance URL missing!");
+    if (!accessToken || !instanceUrl) {
+      return alert("Access Token or Instance URL missing!");
+    }
+
     try {
-      const res = await axios.post("http://localhost:5000/api/validation-rules", {
-        accessToken,
-        instanceUrl,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/validation-rules`,
+        {
+          accessToken,
+          instanceUrl,
+        }
+      );
+
       setRules(res.data.rules);
     } catch (error) {
       console.error("Error fetching rules:", error.response?.data || error.message);
+
       if (error.response?.status === 401) {
         alert("Session expired. Please login again.");
         setAccessToken("");
@@ -69,6 +82,7 @@ function App() {
   return (
     <div style={{ padding: 40 }}>
       <h2>Salesforce Validation Rule Switch</h2>
+
       {!accessToken ? (
         <button onClick={loginWithSalesforce} style={{ padding: "10px 20px" }}>
           Login with Salesforce
@@ -76,9 +90,14 @@ function App() {
       ) : (
         <>
           <h3>Salesforce Login Successful 🎉</h3>
-          <button onClick={getValidationRules} style={{ marginTop: 20, padding: "10px 20px" }}>
+
+          <button
+            onClick={getValidationRules}
+            style={{ marginTop: 20, padding: "10px 20px" }}
+          >
             Get Validation Rules
           </button>
+
           <div style={{ marginTop: 20 }}>
             {rules.length === 0 ? (
               <p>No rules fetched yet.</p>
@@ -86,8 +105,8 @@ function App() {
               <ul>
                 {rules.map((rule, index) => (
                   <li key={index} style={{ marginBottom: 10 }}>
-                    <strong>{rule.ValidationName}</strong>{" "}
-                    
+                    <strong>{rule.ValidationName}</strong>
+
                     <span style={{ marginLeft: 10 }}>
                       Status:{" "}
                       <b style={{ color: rule.Active ? "green" : "red" }}>

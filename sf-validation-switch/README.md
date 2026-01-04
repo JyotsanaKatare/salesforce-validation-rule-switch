@@ -41,7 +41,7 @@ npm start
 ```bash
 cd backend
 npm install
-node index.js
+node server.js
 ```
 
 # Getting Started with Create React App

@@ -5,8 +5,19 @@ const bodyParser = require("body-parser");
 const jsforce = require("jsforce");
 
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+  })
+);
+
 app.use(bodyParser.json());
+
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 
 app.post("/api/validation-rules", async (req, res) => {
   const { accessToken, instanceUrl } = req.body;
@@ -17,11 +28,14 @@ app.post("/api/validation-rules", async (req, res) => {
 
   try {
     const connection = new jsforce.Connection({
-      instanceUrl: instanceUrl,
-      accessToken: accessToken,
+      instanceUrl,
+      accessToken,
     });
 
-    const rules = await connection.metadata.list({ type: "ValidationRule" }, "57.0");
+    const rules = await connection.metadata.list(
+      { type: "ValidationRule" },
+      "57.0"
+    );
 
     const formattedRules = Array.isArray(rules)
       ? rules.map((rule) => ({
@@ -34,7 +48,8 @@ app.post("/api/validation-rules", async (req, res) => {
     res.json({ rules: formattedRules });
   } catch (error) {
     console.error("Salesforce Metadata API error:", error);
-    if (error.message && error.message.includes("INVALID_SESSION_ID")) {
+
+    if (error.message?.includes("INVALID_SESSION_ID")) {
       res.status(401).json({ error: "Session expired. Please login again." });
     } else {
       res.status(500).json({ error: error.message || "Unknown backend error" });
@@ -42,5 +57,7 @@ app.post("/api/validation-rules", async (req, res) => {
   }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`Backend running on port ${PORT}`)
+);

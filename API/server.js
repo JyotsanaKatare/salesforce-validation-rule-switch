@@ -1,8 +1,8 @@
 
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const jsforce = require("jsforce");
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import jsforce from "jsforce";
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+  res.send("Backend is running");
 });
 
 app.post("/api/validation-rules", async (req, res) => {

@@ -41,7 +41,6 @@ function App() {
   const loginWithSalesforce = () => {
     const clientId = process.env.REACT_APP_SF_CLIENT_ID;
 
-    // 🔹 LIVE + LOCAL dono ke liye safe
     const redirectUri = window.location.origin;
 
     window.location.href =
@@ -136,3 +135,5 @@ function App() {
 }
 
 export default App;
+
+
